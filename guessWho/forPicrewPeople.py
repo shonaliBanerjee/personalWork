@@ -5,7 +5,7 @@ people = []
 eliminate = []
 guesses = 3
 
-with open('picrewpeople.txt') as peopleFile:
+with open('picrewPeople.txt') as peopleFile:
   for line in peopleFile:
     line = line.strip()
     parts = line.split(",")
