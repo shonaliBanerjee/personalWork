@@ -15,7 +15,7 @@ punctuation = ""
 
 #logging.basicConfig(format='%(asctime)s %(message)s')
 #logging.warning('is when the dictionary program began.')
-with open("sherlockholmes.txt") as inputFile:
+with open("sherlockHolmes.txt") as inputFile:
   lines = inputFile.read().split("\n")
   for line in lines:
     if line.split():
@@ -25,7 +25,7 @@ with open("sherlockholmes.txt") as inputFile:
       lineCount += 1
     else:
       continue
-with open("sherlockholmes.txt") as inputFile:
+with open("sherlockHolmes.txt") as inputFile:
   lines = inputFile.read().split("\n")
   for line in lines:
     word = line.split()
@@ -38,7 +38,7 @@ with open("sherlockholmes.txt") as inputFile:
       
 #Import Words
 lineCount = 0
-with open('sherlockholmes.txt') as inputFile:
+with open('sherlockHolmes.txt') as inputFile:
   for line in inputFile:
     firstWord = str(firstWord)
     line = line.strip()
