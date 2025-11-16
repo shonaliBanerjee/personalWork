@@ -100,7 +100,7 @@ def setVar(value, variable):
 
     return variable
 
-#display.scroll("Welcome to Beebogotchi")
+display.scroll("Welcome to Beebogotchi")
 beebo = Beebo()
 start = running_time()
 
