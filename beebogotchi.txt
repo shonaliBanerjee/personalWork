@@ -1,0 +1,157 @@
+from microbit import *
+import radio
+
+radio.on()
+
+class Beebo :
+    beeboDisplay = Image("60006:69696:06960:66966:06060")
+    revBeeboDisplay = Image("06060:66966:06960:69696:60006")
+    babyBeeboDisplay = Image("00000:00000:00900:09990:00900")
+    deadBeeboDisplay = Image.GHOST
+
+    def __init__(self):
+        self.Name = "Beebo"
+        self.Hunger = 0
+        self.Boredom = 0
+        self.Tiredness = 0
+        self.Loneliness = 0
+        self.Age = 0
+        self.isDead = False
+
+    def display(self):
+        currentPic = self.getPic()
+        
+        if self.isDead:
+            deathMessage = "Beebo dead"
+            
+            if (self.Hunger > 10) and (self.Boredom > 10) and (self.Tiredness > 10):
+                deathMessage = "Beebo very very dead"
+
+            elif ((self.Hunger > 10) and (self.Boredom > 10)) or ((self.Tiredness > 10) and (self.Boredom > 10)) or ((self.Hunger > 10) and (self.Tiredness > 10)):
+                deathMessage = "Beebo very dead"
+
+            display.show(currentPic)
+            display.scroll("Welcome to Beebogotchi")
+            sleep(500)
+            display.scroll(deathMessage)
+
+        else:
+            display.show(currentPic)
+
+    def feed(self):
+        self.Hunger = setVar(-2, self.Hunger)
+        display.scroll("Beebo happy")
+
+    def play(self):
+        self.Boredom = setVar(-2, self.Boredom)
+        display.scroll("Beebo loves you")
+
+    def sleep(self):
+        self.Boredom = setVar(2, self.Boredom)
+        self.Tiredness = setVar(-2, self.Tiredness)
+        display.clear()
+        display.show(Beebo.revBeeboDisplay)
+        sleep(1000)
+        display.clear()
+
+    def socialise(self, message, strength):
+        message = message.split(" ")
+        friendName = message[-1]
+
+        if strength >= -35:
+            display.scroll("Hello" + friendName + "!")
+            self.Loneliness = setVar(-4, self.Loneliness)
+        else:
+            display.scroll("I can hear " + friendName)
+            self.Loneliness = setVar(-2, self.Loneliness)
+
+    def sing(self):
+        display.scroll("Beebo, Beebo, Beebo loves you, you, you")
+        display.show(Image.MUSIC_QUAVERS)
+
+    def updateStats(self):
+        self.Hunger = setVar(1, self.Hunger)
+        self.Boredom = setVar(1, self.Boredom)
+        self.Tiredness = setVar(1, self.Tiredness)
+        self.Loneliness = setVar(1, self.Loneliness)
+        self.Age += 1
+
+    def setIsDead(self):
+        beebo.isDead = True
+
+    def getPic(self):
+        if self.isDead:
+            return Beebo.deadBeeboDisplay
+
+        if self.Age < 3:
+            return Beebo.babyBeeboDisplay
+
+        else:
+            return Beebo.beeboDisplay
+        
+def setVar(value, variable):
+    variable += value
+
+    if variable < 0:
+        variable = 0
+
+    elif variable > 10:
+        Beebo.setIsDead(beebo)
+
+    return variable
+
+#display.scroll("Welcome to Beebogotchi")
+beebo = Beebo()
+start = running_time()
+
+while True:
+    beebo.display()
+
+    if accelerometer.was_gesture("shake"):
+        display.scroll(beebo.Name)
+        sleep(500)
+
+        display.scroll("H: " + str(beebo.Hunger))
+        sleep(1000)
+        display.scroll("B: " + str(beebo.Boredom))
+        sleep(1000)
+        display.scroll("T: " + str(beebo.Tiredness))
+        sleep(1000)
+        
+    elif accelerometer.is_gesture("face down"):
+        beebo.sleep()
+
+    elif button_a.was_pressed():
+        beebo.feed()
+
+    elif button_b.was_pressed():
+        beebo.play()
+
+    elif pin0.is_touched():
+        beebo.sing()
+
+    elif pin1.is_touched():
+        soundLevel = microphone.sound_level()
+    
+        radioMessage = radio.receive_full()
+    
+        if radioMessage != None:
+            decodedMessage = str(radioMessage[0][3:], "utf8")
+            messageStrength = radioMessage[1]
+            beebo.socialise(radioMessage, messageStrength)
+    
+        if soundLevel > 180:
+            print("Sending a message")
+            radio.send("Hi, I'm Beebo")
+            sleep(10000)
+
+        sleep(1000)
+
+    currentTime = running_time();
+    
+    if (currentTime - start) > 10000:
+        start = currentTime
+
+        if beebo.isDead == False:
+            display.show(Image.ALL_CLOCKS, 35)
+            beebo.updateStats()
